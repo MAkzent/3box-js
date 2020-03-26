@@ -177,7 +177,7 @@ class ThreeId {
   async authenticate (spaces, opts = {}) {
     spaces = spaces || []
     if (this._has3idProv) {
-      const pubkeys = await utils.callRpc(this._provider, '3id_authenticate', { spaces, authData: opts.authData })
+      const pubkeys = await utils.callRpc(this._provider, '3id_authenticate', { spaces, authData: opts.authData, address: opts.address })
       this._pubkeys.main = pubkeys.main
       this._pubkeys.spaces = Object.assign(this._pubkeys.spaces, pubkeys.spaces)
       if (!this.DID) {
@@ -245,7 +245,8 @@ class ThreeId {
 
   async decrypt (encObj, space, toBuffer) {
     if (this._has3idProv) {
-      return utils.callRpc(this._provider, '3id_decrypt', { ...encObj, space })
+      const res = await utils.callRpc(this._provider, '3id_decrypt', { ...encObj, space, buffer: toBuffer })
+      return toBuffer ?  Buffer.from(res) : res
     } else {
       const keyring = this._keyringBySpace(space)
       let paddedMsg
